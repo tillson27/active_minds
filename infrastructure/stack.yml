@@ -1,0 +1,253 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  ACTive Minds Therapy — static site (S3 + CloudFront) plus a Lambda
+  Function URL that powers the contact form (Amazon SES backed). Designed to be
+  the only stack you need to deploy the entire website.
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: active-minds
+    Description: Lowercase project identifier, used as a prefix for created resources.
+
+  CustomDomainName:
+    Type: String
+    Default: www.activemindstherapy.com
+    Description: Primary public domain (covered by the ACM cert below).
+
+  AlternateDomainName:
+    Type: String
+    Default: activemindstherapy.com
+    Description: Apex/alternate domain to include on the CloudFront distribution.
+
+  AcmCertificateArn:
+    Type: String
+    Description: ACM certificate ARN (must live in us-east-1) covering both domain names.
+
+  PriceClass:
+    Type: String
+    Default: PriceClass_100
+    AllowedValues: [PriceClass_100, PriceClass_200, PriceClass_All]
+
+  PracticeEmail:
+    Type: String
+    Default: info@activemindstherapy.com
+    Description: Inbox that receives new contact form submissions.
+
+  FromEmail:
+    Type: String
+    Default: no-reply@activemindstherapy.com
+    Description: SES-verified address Lambda sends from. Must be verified in SES.
+
+  AllowedOrigins:
+    Type: String
+    Default: https://www.activemindstherapy.com,https://activemindstherapy.com
+    Description: Comma-separated origins permitted to call the contact API.
+
+Resources:
+  # ---------- Site bucket (private; served via OAC) ----------
+  SiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${ProjectName}-site-${AWS::AccountId}-${AWS::Region}"
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+
+  CloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${ProjectName}-oac"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  # Custom response policy injects security headers for the static origin.
+  ResponseHeadersPolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub "${ProjectName}-security-headers"
+        Comment: Sensible security headers for the marketing site.
+        SecurityHeadersConfig:
+          ContentTypeOptions:
+            Override: true
+          FrameOptions:
+            FrameOption: SAMEORIGIN
+            Override: true
+          ReferrerPolicy:
+            ReferrerPolicy: strict-origin-when-cross-origin
+            Override: true
+          StrictTransportSecurity:
+            AccessControlMaxAgeSec: 63072000
+            IncludeSubdomains: true
+            Preload: true
+            Override: true
+          XSSProtection:
+            ModeBlock: true
+            Protection: true
+            Override: true
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: index.html
+        HttpVersion: http2and3
+        IPV6Enabled: true
+        PriceClass: !Ref PriceClass
+        Comment: !Sub "${ProjectName} marketing site"
+
+        Origins:
+          - Id: s3origin
+            DomainName: !GetAtt SiteBucket.RegionalDomainName
+            S3OriginConfig: {}
+            OriginAccessControlId: !Ref CloudFrontOAC
+
+        DefaultCacheBehavior:
+          TargetOriginId: s3origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD, OPTIONS]
+          Compress: true
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # CachingOptimized
+          ResponseHeadersPolicyId: !Ref ResponseHeadersPolicy
+
+        # SPA fallback so deep links to anchors don't 403.
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+
+        Aliases:
+          - !Ref CustomDomainName
+          - !Ref AlternateDomainName
+
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificateArn
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+
+  SiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref SiteBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowCloudFrontRead
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${SiteBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+
+  # ---------- Contact form Lambda ----------
+  ContactFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${ProjectName}-contact-fn-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: AllowSESSend
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: "*"
+
+  ContactFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${ProjectName}-contact"
+      Runtime: nodejs20.x
+      Handler: contact.handler
+      Role: !GetAtt ContactFunctionRole.Arn
+      Timeout: 15
+      MemorySize: 256
+      Environment:
+        Variables:
+          PRACTICE_EMAIL: !Ref PracticeEmail
+          FROM_EMAIL: !Ref FromEmail
+          FROM_NAME: "ACTive Minds Therapy Website"
+          ALLOWED_ORIGINS: !Ref AllowedOrigins
+      # NOTE: The Code property is updated out-of-band by `scripts/deploy-lambda.sh`.
+      # On stack create, the placeholder below is enough to stand the function up.
+      Code:
+        ZipFile: |
+          export const handler = async () => ({
+            statusCode: 503,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Function code has not been deployed yet.' }),
+          });
+
+  ContactFunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !GetAtt ContactFunction.Arn
+      AuthType: NONE
+      Cors:
+        AllowOrigins: !Split [",", !Ref AllowedOrigins]
+        AllowMethods: [POST, OPTIONS]
+        AllowHeaders: [content-type]
+        MaxAge: 86400
+
+  # Permission for unauthenticated public invocation via the Function URL.
+  ContactFunctionUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ContactFunction
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+      FunctionUrlAuthType: NONE
+
+Outputs:
+  SiteBucketName:
+    Description: S3 bucket holding the built site files.
+    Value: !Ref SiteBucket
+    Export:
+      Name: !Sub "${ProjectName}-site-bucket"
+
+  CloudFrontDomainName:
+    Description: Default CloudFront domain (use this until DNS is pointed at it).
+    Value: !GetAtt CloudFrontDistribution.DomainName
+
+  CloudFrontDistributionId:
+    Description: CloudFront distribution ID (used for cache invalidation).
+    Value: !Ref CloudFrontDistribution
+    Export:
+      Name: !Sub "${ProjectName}-distribution-id"
+
+  ContactFunctionName:
+    Description: Lambda function name.
+    Value: !Ref ContactFunction
+    Export:
+      Name: !Sub "${ProjectName}-contact-fn"
+
+  ContactApiUrl:
+    Description: Public Function URL for the contact form (set as VITE_CONTACT_API_URL).
+    Value: !GetAtt ContactFunctionUrl.FunctionUrl
