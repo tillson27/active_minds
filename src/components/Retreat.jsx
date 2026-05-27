@@ -85,7 +85,7 @@ const LOGISTICS = [
   },
   {
     icon: DollarSign,
-    title: '$250 Registration',
+    title: '$200 Registration',
     body: 'Includes retreat materials, workbook, journal, guided activities, lunch, snacks, coffee/tea, and wellness planning resources.',
   },
 ]
@@ -324,7 +324,7 @@ export default function Retreat() {
 
               <ul className="retreat-register-list">
                 <li>
-                  <Heart size={16} /> Full-day retreat &mdash; $250 per participant
+                  <Heart size={16} /> Full-day retreat &mdash; $200 per participant
                 </li>
                 <li>
                   <Heart size={16} /> Limited registration — small group sizes for genuine connection

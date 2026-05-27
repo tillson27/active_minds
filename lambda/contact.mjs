@@ -7,17 +7,29 @@ import {
 } from './emailTemplate.mjs'
 
 const REGION = process.env.AWS_REGION || 'us-east-1'
-const TO_EMAIL = process.env.PRACTICE_EMAIL || 'info@activemindstherapy.com'
-const RETREAT_EMAIL = process.env.RETREAT_EMAIL || TO_EMAIL
-const FROM_EMAIL = process.env.FROM_EMAIL || 'no-reply@activemindstherapy.com'
+
+const parseList = (s) =>
+  (s || '')
+    .split(',')
+    .map((x) => x.trim())
+    .filter(Boolean)
+
+const TO_EMAILS = parseList(process.env.PRACTICE_EMAIL) || []
+const RETREAT_EMAILS = parseList(process.env.RETREAT_EMAIL)
+const RECIPIENTS = {
+  contact: TO_EMAILS.length ? TO_EMAILS : ['info@activemindstherapy.com'],
+  retreat: RETREAT_EMAILS.length
+    ? RETREAT_EMAILS
+    : TO_EMAILS.length
+    ? TO_EMAILS
+    : ['info@activemindstherapy.com'],
+}
+const FROM_EMAIL = process.env.FROM_EMAIL || 'no-reply@activeminds.online'
 const FROM_NAME = process.env.FROM_NAME || 'ACTive Minds Therapy Website'
-const ALLOWED_ORIGINS = (
+const ALLOWED_ORIGINS = parseList(
   process.env.ALLOWED_ORIGINS ||
-  'https://www.activemindstherapy.com,https://activemindstherapy.com'
+    'https://activeminds.online,https://www.activeminds.online',
 )
-  .split(',')
-  .map((s) => s.trim())
-  .filter(Boolean)
 
 const ses = new SESv2Client({ region: REGION })
 
@@ -130,7 +142,7 @@ export const handler = async (event) => {
   )
 
   const isRetreat = formType === 'retreat'
-  const recipient = isRetreat ? RETREAT_EMAIL : TO_EMAIL
+  const recipients = RECIPIENTS[formType]
   const inquiry = isRetreat
     ? buildRetreatRegistrationEmail(safe)
     : buildInquiryEmail(safe)
@@ -148,7 +160,7 @@ export const handler = async (event) => {
     await ses.send(
       new SendEmailCommand({
         FromEmailAddress: `${FROM_NAME} <${FROM_EMAIL}>`,
-        Destination: { ToAddresses: [recipient] },
+        Destination: { ToAddresses: recipients },
         ReplyToAddresses: [payload.email],
         Content: {
           Simple: {
@@ -168,7 +180,7 @@ export const handler = async (event) => {
         new SendEmailCommand({
           FromEmailAddress: `ACTive Minds Therapy <${FROM_EMAIL}>`,
           Destination: { ToAddresses: [payload.email] },
-          ReplyToAddresses: [recipient],
+          ReplyToAddresses: recipients,
           Content: {
             Simple: {
               Subject: { Data: replySubject, Charset: 'UTF-8' },
