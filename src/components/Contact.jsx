@@ -75,12 +75,12 @@ export default function Contact() {
   }
 
   return (
-    <section className="contact" id="contact">
+    <section className="contact" id="contact" aria-labelledby="contact-heading">
       <div className="container">
         <div className="contact-grid">
           <Reveal className="contact-info">
             <span className="eyebrow">Get in Touch</span>
-            <h2 className="section-title">
+            <h2 id="contact-heading" className="section-title">
               Take the first step <em>when you&rsquo;re ready</em>.
             </h2>
             <p>

@@ -63,11 +63,11 @@ const PROGRAMS = [
 
 export default function Programs() {
   return (
-    <section className="programs" id="programs">
+    <section className="programs" id="programs" aria-labelledby="programs-heading">
       <div className="container">
         <Reveal className="section-header center">
           <span className="eyebrow" style={{ justifyContent: 'center' }}>Programs</span>
-          <h2 className="section-title">
+          <h2 id="programs-heading" className="section-title">
             Specialized programs <em>built for moments that matter</em>.
           </h2>
           <p className="section-lead">

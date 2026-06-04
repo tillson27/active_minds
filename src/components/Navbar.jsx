@@ -45,7 +45,8 @@ export default function Navbar({ variant }) {
   }
 
   return (
-    <nav className={`navbar${scrolled ? ' scrolled' : ''}`}>
+    <nav className={`navbar${scrolled ? ' scrolled' : ''}`} aria-label="Primary">
+      <a className="skip-link" href="#main">Skip to main content</a>
       <div className="navbar-inner">
         <a href={brandHref} className="nav-brand" onClick={brandClick} aria-label="ACTive Minds Therapy home">
           <Logo height={52} markOnly className="nav-brand-mark" />

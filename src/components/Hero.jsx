@@ -3,7 +3,7 @@ import heroPath from '../assets/hero-path.png'
 
 export default function Hero() {
   return (
-    <section className="hero" id="top">
+    <section className="hero" id="top" aria-label="ACTive Minds Therapy & Consulting — overview">
       <div className="hero-bg" aria-hidden="true" />
       <div className="hero-inner">
         <div className="hero-copy">

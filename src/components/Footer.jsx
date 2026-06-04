@@ -3,7 +3,7 @@ import Logo from './Logo'
 export default function Footer() {
   const year = new Date().getFullYear()
   return (
-    <footer className="footer">
+    <footer className="footer" aria-label="Site footer">
       <div className="footer-inner">
         <div className="footer-brand">
           <Logo height={88} />
@@ -12,6 +12,11 @@ export default function Footer() {
             clinical supervision, training, and consulting across Sudbury,
             Manitoulin, and Ontario.
           </p>
+          <address style={{ marginTop: '0.75rem', fontStyle: 'normal', fontSize: '0.9rem', color: 'var(--ink-muted)' }}>
+            ACTive Minds Therapy &amp; Consulting<br />
+            510 Perivale Rd E, Spring Bay, ON, Canada<br />
+            <a href="tel:+17052075300">(705) 207-5300</a>
+          </address>
         </div>
 
         <div className="footer-col">

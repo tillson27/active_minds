@@ -49,11 +49,11 @@ const SPECS = [
 
 export default function Specializations() {
   return (
-    <section className="specializations" id="specializations">
+    <section className="specializations" id="specializations" aria-labelledby="specializations-heading">
       <div className="container">
         <Reveal className="section-header center">
           <span className="eyebrow" style={{ justifyContent: 'center' }}>Areas of Specialization</span>
-          <h2 className="section-title">
+          <h2 id="specializations-heading" className="section-title">
             The work we&rsquo;re <em>uniquely trained</em> to do.
           </h2>
           <p className="section-lead">

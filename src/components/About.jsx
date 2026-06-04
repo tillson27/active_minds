@@ -26,11 +26,11 @@ const PILLARS = [
 
 export default function About() {
   return (
-    <section className="about" id="about">
+    <section className="about" id="about" aria-labelledby="about-heading">
       <div className="container">
         <Reveal className="section-header about-header">
           <span className="eyebrow">About the Collective</span>
-          <h2 className="section-title">
+          <h2 id="about-heading" className="section-title">
             Counselling that meets you <em>where you are</em>.
           </h2>
           <p className="section-lead">

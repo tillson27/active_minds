@@ -43,7 +43,9 @@ function App() {
     return (
       <>
         <Navbar variant="retreat" />
-        <Retreat />
+        <main id="main">
+          <Retreat />
+        </main>
         <Footer />
       </>
     )
@@ -52,14 +54,16 @@ function App() {
   return (
     <>
       <Navbar />
-      <Hero />
-      <About />
-      <Video />
-      <Specializations />
-      <Services />
-      <Team />
-      <Programs />
-      <Contact />
+      <main id="main">
+        <Hero />
+        <About />
+        <Video />
+        <Specializations />
+        <Services />
+        <Team />
+        <Programs />
+        <Contact />
+      </main>
       <Footer />
     </>
   )

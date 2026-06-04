@@ -67,11 +67,11 @@ const SERVICES = [
 
 export default function Services() {
   return (
-    <section className="services" id="services">
+    <section className="services" id="services" aria-labelledby="services-heading">
       <div className="container">
         <Reveal className="section-header center">
           <span className="eyebrow" style={{ justifyContent: 'center' }}>Services</span>
-          <h2 className="section-title">
+          <h2 id="services-heading" className="section-title">
             Four ways we can <em>support you</em>.
           </h2>
           <p className="section-lead">

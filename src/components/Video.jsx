@@ -14,11 +14,11 @@ export default function Video() {
   const [playing, setPlaying] = useState(false)
 
   return (
-    <section className="video-section" id="watch">
+    <section className="video-section" id="watch" aria-labelledby="watch-heading">
       <div className="container">
         <Reveal className="section-header center">
           <span className="eyebrow" style={{ justifyContent: 'center' }}>Watch</span>
-          <h2 className="section-title">
+          <h2 id="watch-heading" className="section-title">
             Meet the <em>ACTive Minds collective</em>.
           </h2>
           <p className="section-lead">

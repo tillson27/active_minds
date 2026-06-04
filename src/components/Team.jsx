@@ -36,11 +36,11 @@ const TEAM = [
 
 export default function Team() {
   return (
-    <section className="team" id="team">
+    <section className="team" id="team" aria-labelledby="team-heading">
       <div className="container">
         <Reveal className="section-header center">
           <span className="eyebrow" style={{ justifyContent: 'center' }}>Our Team</span>
-          <h2 className="section-title">
+          <h2 id="team-heading" className="section-title">
             Three social workers. One <em>shared commitment</em>.
           </h2>
           <p className="section-lead">

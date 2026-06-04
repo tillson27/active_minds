@@ -164,7 +164,7 @@ export default function Retreat() {
   }
 
   return (
-    <main className="retreat-page">
+    <div className="retreat-page">
       {/* ---------- HERO ---------- */}
       <section className="retreat-hero" id="top">
         <div className="retreat-hero-bg" aria-hidden="true" />
@@ -569,6 +569,6 @@ export default function Retreat() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   )
 }
