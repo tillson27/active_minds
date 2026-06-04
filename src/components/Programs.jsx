@@ -10,7 +10,7 @@ const PROGRAMS = [
     body:
       'A full-day experiential retreat for school professionals — teachers, EAs, counsellors, and school-based clinicians. Develop grounding strategies, strengthen self-compassion, and build an individualized wellness plan for the year ahead. Nature-based mindfulness, guided reflection, and practical tools.',
     meta: [
-      { key: 'Investment', val: '$250' },
+      { key: 'Investment', val: '$200' },
       { key: 'Dates', val: 'Aug 18 · Aug 20' },
     ],
     facilitators: (

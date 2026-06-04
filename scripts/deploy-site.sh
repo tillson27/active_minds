@@ -40,8 +40,7 @@ echo "→ Installing site dependencies…"
 (cd "$ROOT_DIR" && npm install)
 
 echo "→ Building Vite bundle…"
-VITE_CONTACT_API_URL="$API_URL" \
-  (cd "$ROOT_DIR" && npm run build)
+(cd "$ROOT_DIR" && VITE_CONTACT_API_URL="$API_URL" npm run build)
 
 echo "→ Syncing immutable assets (1y cache)…"
 aws s3 sync "$ROOT_DIR/dist/" "s3://$BUCKET/" \

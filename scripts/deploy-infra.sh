@@ -27,7 +27,7 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 
-echo "→ Deploying stack '$STACK_NAME' to $AWS_REGION…"
+echo "→ Deploying stack '${STACK_NAME}' to ${AWS_REGION}…"
 
 aws cloudformation deploy \
   --region "$AWS_REGION" \
