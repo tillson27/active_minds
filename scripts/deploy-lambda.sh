@@ -12,14 +12,11 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 LAMBDA_DIR="$ROOT_DIR/lambda"
 
-echo "→ Installing Lambda dependencies…"
-(cd "$LAMBDA_DIR" && npm install --omit=dev)
-
 echo "→ Bundling function.zip…"
 (
   cd "$LAMBDA_DIR"
   rm -f function.zip
-  zip -qr function.zip contact.mjs emailTemplate.mjs package.json node_modules
+  zip -qr function.zip contact.mjs emailTemplate.mjs package.json
 )
 
 FN_NAME="$(

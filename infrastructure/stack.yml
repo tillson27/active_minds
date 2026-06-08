@@ -37,12 +37,21 @@ Parameters:
   FromEmail:
     Type: String
     Default: no-reply@activemindstherapy.com
-    Description: SES-verified address Lambda sends from. Must be verified in SES.
+    Description: Verified Resend sender. The domain must be verified in Resend.
 
   AllowedOrigins:
     Type: String
     Default: https://www.activemindstherapy.com,https://activemindstherapy.com
     Description: Comma-separated origins permitted to call the contact API.
+
+  ResendApiKey:
+    Type: String
+    NoEcho: true
+    Default: ""
+    Description: >
+      Resend API key (re_...). Leave empty on stack create; set the env var
+      directly on the Lambda after deploy, or pass it here on subsequent
+      updates. The Lambda will reject requests if this is empty.
 
 Resources:
   # ---------- Site bucket (private; served via OAC) ----------
@@ -169,16 +178,6 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-      Policies:
-        - PolicyName: AllowSESSend
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - ses:SendEmail
-                  - ses:SendRawEmail
-                Resource: "*"
 
   ContactFunction:
     Type: AWS::Lambda::Function
@@ -194,7 +193,7 @@ Resources:
           PRACTICE_EMAIL: !Ref PracticeEmail
           FROM_EMAIL: !Ref FromEmail
           FROM_NAME: "ACTive Minds Therapy Website"
-          ALLOWED_ORIGINS: !Ref AllowedOrigins
+          RESEND_API_KEY: !Ref ResendApiKey
       # NOTE: The Code property is updated out-of-band by `scripts/deploy-lambda.sh`.
       # On stack create, the placeholder below is enough to stand the function up.
       Code:

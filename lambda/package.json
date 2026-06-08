@@ -3,12 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Lambda handler for the ACTive Minds Therapy website contact form. Sends the inquiry to the practice inbox via Amazon SES with a styled HTML email, plus an auto-reply to the sender.",
+  "description": "Lambda handler for the ACTive Minds Therapy website contact form. Sends inquiry + auto-reply emails via Resend's REST API.",
   "main": "contact.mjs",
   "scripts": {
     "bundle": "rm -f function.zip && zip -r function.zip contact.mjs emailTemplate.mjs package.json"
   },
-  "dependencies": {
-    "@aws-sdk/client-sesv2": "^3.700.0"
-  }
+  "dependencies": {}
 }
