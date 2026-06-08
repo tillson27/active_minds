@@ -217,6 +217,8 @@ Resources:
         MaxAge: 86400
 
   # Permission for unauthenticated public invocation via the Function URL.
+  # As of October 2025, Lambda requires BOTH lambda:InvokeFunctionUrl AND
+  # lambda:InvokeFunction permissions for the URL to accept public requests.
   ContactFunctionUrlPermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -224,6 +226,14 @@ Resources:
       Action: lambda:InvokeFunctionUrl
       Principal: "*"
       FunctionUrlAuthType: NONE
+
+  ContactFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ContactFunction
+      Action: lambda:InvokeFunction
+      Principal: "*"
+      InvokedViaFunctionUrl: true
 
 Outputs:
   SiteBucketName:
