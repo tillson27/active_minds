@@ -11,6 +11,7 @@ import Programs from './components/Programs'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
 import Retreat from './components/Retreat'
+import Admin from './components/Admin'
 
 const stripBase = (pathname) => {
   const base = import.meta.env.BASE_URL.replace(/\/$/, '')
@@ -19,6 +20,7 @@ const stripBase = (pathname) => {
 }
 
 const isRetreatPath = (pathname) => /^\/retreat\/?$/i.test(stripBase(pathname))
+const isAdminPath = (pathname) => /^\/admin\/?$/i.test(stripBase(pathname))
 
 function App() {
   const [path, setPath] = useState(() =>
@@ -38,6 +40,10 @@ function App() {
       window.removeEventListener('spa:navigate', onSpaNav)
     }
   }, [])
+
+  if (isAdminPath(path)) {
+    return <Admin />
+  }
 
   if (isRetreatPath(path)) {
     return (

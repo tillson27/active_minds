@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Lambda handler for the ACTive Minds Therapy website contact form. Sends inquiry + auto-reply emails via Resend's REST API.",
+  "description": "Lambda handler for ACTive Minds Therapy forms, auto-replies, DynamoDB submissions, and admin access.",
   "main": "contact.mjs",
   "scripts": {
     "bundle": "rm -f function.zip && zip -r function.zip contact.mjs emailTemplate.mjs package.json"

@@ -7,6 +7,8 @@
 #   RESEND_API_KEY       Resend API key (re_...). Required because CFN manages
 #                        the Lambda's env vars — omitting this would wipe the
 #                        key from the running function and break the contact form.
+#   ADMIN_PASSWORD       Password for /admin. The script hashes it locally before
+#                        passing it to CloudFormation.
 #
 # Optional env vars (with sane defaults):
 #   AWS_PROFILE          AWS profile to use
@@ -14,6 +16,8 @@
 #   AWS_REGION           Region (default: us-east-1) — must be us-east-1 for the cert
 #   PRACTICE_EMAIL       Inbox that receives inquiries
 #   FROM_EMAIL           Verified Resend sender
+#   ADMIN_PASSWORD_HASH  Precomputed SHA-256 hex hash, used instead of ADMIN_PASSWORD
+#   ADMIN_SESSION_SECRET Optional secret for signing /admin sessions
 #
 set -euo pipefail
 
@@ -33,6 +37,15 @@ if [[ -z "${RESEND_API_KEY:-}" ]]; then
   exit 1
 fi
 
+if [[ -z "${ADMIN_PASSWORD_HASH:-}" ]]; then
+  if [[ -z "${ADMIN_PASSWORD:-}" ]]; then
+    echo "ERROR: ADMIN_PASSWORD env var is required for /admin access." >&2
+    echo "       Set ADMIN_PASSWORD, or set ADMIN_PASSWORD_HASH to a SHA-256 hex hash." >&2
+    exit 1
+  fi
+  ADMIN_PASSWORD_HASH="$(printf "%s" "$ADMIN_PASSWORD" | shasum -a 256 | awk '{print $1}')"
+fi
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 
@@ -47,7 +60,9 @@ aws cloudformation deploy \
     AcmCertificateArn="$ACM_CERTIFICATE_ARN" \
     PracticeEmail="$PRACTICE_EMAIL" \
     FromEmail="$FROM_EMAIL" \
-    ResendApiKey="$RESEND_API_KEY"
+    ResendApiKey="$RESEND_API_KEY" \
+    AdminPasswordHash="$ADMIN_PASSWORD_HASH" \
+    AdminSessionSecret="${ADMIN_SESSION_SECRET:-}"
 
 echo
 echo "✓ Stack deployed. Outputs:"

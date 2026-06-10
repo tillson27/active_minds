@@ -4,6 +4,15 @@ import {
   buildRetreatRegistrationEmail,
   buildRetreatAutoReplyEmail,
 } from './emailTemplate.mjs'
+import {
+  createHash,
+  createHmac,
+  randomUUID,
+  timingSafeEqual,
+} from 'node:crypto'
+import { createRequire } from 'node:module'
+
+const require = createRequire(import.meta.url)
 
 const parseList = (s) =>
   (s || '')
@@ -24,6 +33,53 @@ const RECIPIENTS = {
 const FROM_EMAIL = process.env.FROM_EMAIL || 'no-reply@activemindstherapy.com'
 const FROM_NAME = process.env.FROM_NAME || 'ACTive Minds Therapy Website'
 const RESEND_API_KEY = process.env.RESEND_API_KEY
+const SUBMISSIONS_TABLE = process.env.SUBMISSIONS_TABLE
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH
+const ADMIN_SESSION_SECRET =
+  process.env.ADMIN_SESSION_SECRET || process.env.RESEND_API_KEY
+const ADMIN_SESSION_HOURS = Number(process.env.ADMIN_SESSION_HOURS || '8')
+
+const SUBMISSION_FIELDS = {
+  contact: [
+    'firstName',
+    'lastName',
+    'email',
+    'phone',
+    'service',
+    'clinician',
+    'message',
+  ],
+  retreat: [
+    'firstName',
+    'lastName',
+    'email',
+    'phone',
+    'location',
+    'role',
+    'organization',
+    'dietary',
+    'pdFund',
+    'notes',
+  ],
+}
+
+let dynamo
+
+const getDynamo = () => {
+  if (!dynamo) {
+    const {
+      DynamoDBClient,
+      PutItemCommand,
+      QueryCommand,
+    } = require('@aws-sdk/client-dynamodb')
+    dynamo = {
+      client: new DynamoDBClient({}),
+      PutItemCommand,
+      QueryCommand,
+    }
+  }
+  return dynamo
+}
 
 // The Lambda Function URL is configured with its own CORS, so we do NOT
 // add Access-Control-* headers here — duplicating them produces the
@@ -41,6 +97,139 @@ const escape = (s = '') =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
+
+const hashPassword = (password = '') =>
+  createHash('sha256').update(String(password)).digest('hex')
+
+const timingSafeEqualString = (a = '', b = '') => {
+  const aBuffer = Buffer.from(String(a))
+  const bBuffer = Buffer.from(String(b))
+  if (aBuffer.length !== bBuffer.length) return false
+  return timingSafeEqual(aBuffer, bBuffer)
+}
+
+const base64UrlEncode = (value) =>
+  Buffer.from(value).toString('base64url')
+
+const base64UrlDecode = (value) =>
+  Buffer.from(value, 'base64url').toString('utf8')
+
+const signAdminPayload = (payload) =>
+  createHmac('sha256', ADMIN_SESSION_SECRET).update(payload).digest('base64url')
+
+const createAdminToken = () => {
+  const now = Math.floor(Date.now() / 1000)
+  const exp = now + Math.max(1, ADMIN_SESSION_HOURS || 8) * 60 * 60
+  const payload = base64UrlEncode(
+    JSON.stringify({
+      scope: 'admin',
+      iat: now,
+      exp,
+    }),
+  )
+  return {
+    token: `${payload}.${signAdminPayload(payload)}`,
+    expiresAt: new Date(exp * 1000).toISOString(),
+  }
+}
+
+const verifyAdminToken = (token) => {
+  if (!ADMIN_PASSWORD_HASH || !ADMIN_SESSION_SECRET) return false
+  const [payload, signature] = String(token || '').split('.')
+  if (!payload || !signature) return false
+  if (!timingSafeEqualString(signature, signAdminPayload(payload))) return false
+
+  try {
+    const claims = JSON.parse(base64UrlDecode(payload))
+    return claims.scope === 'admin' && claims.exp > Math.floor(Date.now() / 1000)
+  } catch {
+    return false
+  }
+}
+
+const encodeCursor = (key) =>
+  key ? base64UrlEncode(JSON.stringify(key)) : null
+
+const decodeCursor = (cursor) => {
+  if (!cursor) return undefined
+  try {
+    return JSON.parse(base64UrlDecode(cursor))
+  } catch {
+    return undefined
+  }
+}
+
+const readString = (item, key) => item?.[key]?.S || ''
+
+const serializeSubmission = (item) => {
+  const type = readString(item, 'submissionType')
+  const fields = SUBMISSION_FIELDS[type] || []
+  return {
+    submissionType: type,
+    submissionId: readString(item, 'submissionId'),
+    submittedAt: readString(item, 'submittedAt'),
+    ...Object.fromEntries(fields.map((field) => [field, readString(item, field)])),
+  }
+}
+
+const putString = (item, key, value) => {
+  if (value === undefined || value === null || value === '') return
+  item[key] = { S: String(value) }
+}
+
+const storeSubmission = async (formType, payload) => {
+  if (!SUBMISSIONS_TABLE) return
+
+  const submissionId = randomUUID()
+  const item = {
+    submissionType: { S: formType },
+    submittedAtSubmissionId: {
+      S: `${payload.submittedAt}#${submissionId}`,
+    },
+    submissionId: { S: submissionId },
+    submittedAt: { S: payload.submittedAt },
+    source: { S: 'website' },
+  }
+
+  for (const field of SUBMISSION_FIELDS[formType] || []) {
+    putString(item, field, payload[field])
+  }
+
+  const { client, PutItemCommand } = getDynamo()
+  await client.send(
+    new PutItemCommand({
+      TableName: SUBMISSIONS_TABLE,
+      Item: item,
+    }),
+  )
+}
+
+const listSubmissions = async ({ submissionType, cursor, limit }) => {
+  if (!SUBMISSIONS_TABLE) {
+    throw new Error('Submissions table is not configured')
+  }
+
+  const type = submissionType === 'retreat' ? 'retreat' : 'contact'
+  const pageSize = Math.max(1, Math.min(Number(limit) || 25, 100))
+  const { client, QueryCommand } = getDynamo()
+  const response = await client.send(
+    new QueryCommand({
+      TableName: SUBMISSIONS_TABLE,
+      KeyConditionExpression: 'submissionType = :submissionType',
+      ExpressionAttributeValues: {
+        ':submissionType': { S: type },
+      },
+      ExclusiveStartKey: decodeCursor(cursor),
+      ScanIndexForward: false,
+      Limit: pageSize,
+    }),
+  )
+
+  return {
+    submissions: (response.Items || []).map(serializeSubmission),
+    nextCursor: encodeCursor(response.LastEvaluatedKey),
+  }
+}
 
 const REQUIRED_BY_TYPE = {
   contact: ['firstName', 'lastName', 'email', 'service', 'message'],
@@ -88,6 +277,42 @@ const sendEmail = async ({ from, to, replyTo, subject, html, text }) => {
   return res.json()
 }
 
+const handleAdminAction = async (data) => {
+  if (!ADMIN_PASSWORD_HASH || !ADMIN_SESSION_SECRET) {
+    return json(503, { error: 'Admin access is not configured' })
+  }
+
+  if (data.action === 'adminLogin') {
+    const candidateHash = hashPassword(data.password || '')
+    if (!timingSafeEqualString(candidateHash, ADMIN_PASSWORD_HASH)) {
+      return json(401, { error: 'Invalid password' })
+    }
+    return json(200, { ok: true, ...createAdminToken() })
+  }
+
+  if (data.action === 'adminList') {
+    if (!verifyAdminToken(data.token)) {
+      return json(401, { error: 'Invalid or expired session' })
+    }
+
+    try {
+      return json(200, {
+        ok: true,
+        ...(await listSubmissions({
+          submissionType: data.submissionType,
+          cursor: data.cursor,
+          limit: data.limit,
+        })),
+      })
+    } catch (err) {
+      console.error('Admin list failed:', err)
+      return json(500, { error: 'Failed to load submissions' })
+    }
+  }
+
+  return json(400, { error: 'Unknown admin action' })
+}
+
 export const handler = async (event) => {
   const method =
     event?.requestContext?.http?.method || event?.httpMethod || 'POST'
@@ -102,16 +327,20 @@ export const handler = async (event) => {
     return json(405, { error: 'Method not allowed' })
   }
 
-  if (!RESEND_API_KEY) {
-    console.error('RESEND_API_KEY env var is not set')
-    return json(500, { error: 'Email service is not configured' })
-  }
-
   let data
   try {
     data = typeof event.body === 'string' ? JSON.parse(event.body) : event.body
   } catch {
     return json(400, { error: 'Invalid JSON' })
+  }
+
+  if (String(data?.action || '').startsWith('admin')) {
+    return handleAdminAction(data)
+  }
+
+  if (!RESEND_API_KEY) {
+    console.error('RESEND_API_KEY env var is not set')
+    return json(500, { error: 'Email service is not configured' })
   }
 
   // Honeypot — silently accept if filled, to discourage bots
@@ -191,6 +420,12 @@ export const handler = async (event) => {
       })
     } catch (autoErr) {
       console.warn('Auto-reply failed (non-fatal):', autoErr?.message)
+    }
+
+    try {
+      await storeSubmission(formType, payload)
+    } catch (storeErr) {
+      console.warn('Submission storage failed (non-fatal):', storeErr?.message)
     }
 
     return json(200, { ok: true })

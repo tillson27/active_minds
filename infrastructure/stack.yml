@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >
   ACTive Minds Therapy — static site (S3 + CloudFront) plus a Lambda
-  Function URL that powers the contact form (Amazon SES backed). Designed to be
+  Function URL that powers the contact form and admin submissions. Designed to be
   the only stack you need to deploy the entire website.
 
 Parameters:
@@ -52,6 +52,20 @@ Parameters:
       Resend API key (re_...). Leave empty on stack create; set the env var
       directly on the Lambda after deploy, or pass it here on subsequent
       updates. The Lambda will reject requests if this is empty.
+
+  AdminPasswordHash:
+    Type: String
+    NoEcho: true
+    Default: ""
+    Description: SHA-256 hex hash of the /admin password. Leave empty to disable admin access.
+
+  AdminSessionSecret:
+    Type: String
+    NoEcho: true
+    Default: ""
+    Description: >
+      Optional secret used to sign /admin session tokens. If omitted, the
+      Resend API key is used as the session signing secret.
 
 Resources:
   # ---------- Site bucket (private; served via OAC) ----------
@@ -164,6 +178,27 @@ Resources:
               StringEquals:
                 AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
 
+  # ---------- Form submission storage ----------
+  FormSubmissionsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Sub "${ProjectName}-form-submissions"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: submissionType
+          AttributeType: S
+        - AttributeName: submittedAtSubmissionId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: submissionType
+          KeyType: HASH
+        - AttributeName: submittedAtSubmissionId
+          KeyType: RANGE
+      SSESpecification:
+        SSEEnabled: true
+
   # ---------- Contact form Lambda ----------
   ContactFunctionRole:
     Type: AWS::IAM::Role
@@ -178,6 +213,16 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: !Sub "${ProjectName}-submissions-table-access"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                Resource: !GetAtt FormSubmissionsTable.Arn
 
   ContactFunction:
     Type: AWS::Lambda::Function
@@ -194,6 +239,10 @@ Resources:
           FROM_EMAIL: !Ref FromEmail
           FROM_NAME: "ACTive Minds Therapy Website"
           RESEND_API_KEY: !Ref ResendApiKey
+          SUBMISSIONS_TABLE: !Ref FormSubmissionsTable
+          ADMIN_PASSWORD_HASH: !Ref AdminPasswordHash
+          ADMIN_SESSION_SECRET: !Ref AdminSessionSecret
+          ADMIN_SESSION_HOURS: "8"
       # NOTE: The Code property is updated out-of-band by `scripts/deploy-lambda.sh`.
       # On stack create, the placeholder below is enough to stand the function up.
       Code:
@@ -258,5 +307,11 @@ Outputs:
       Name: !Sub "${ProjectName}-contact-fn"
 
   ContactApiUrl:
-    Description: Public Function URL for the contact form (set as VITE_CONTACT_API_URL).
+    Description: Public Function URL for the contact forms and admin API (set as VITE_CONTACT_API_URL).
     Value: !GetAtt ContactFunctionUrl.FunctionUrl
+
+  FormSubmissionsTableName:
+    Description: DynamoDB table that stores contact and retreat form submissions.
+    Value: !Ref FormSubmissionsTable
+    Export:
+      Name: !Sub "${ProjectName}-form-submissions-table"
