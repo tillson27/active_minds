@@ -483,6 +483,199 @@ ACTive Minds Therapy & Consulting`
   return { html, text }
 }
 
+export function buildGriefRegistrationEmail(d) {
+  const html = wrap({
+    title: 'New grief program registration',
+    preheader: `${d.firstName} ${d.lastName} has registered for Living & Moving with Grief.`,
+    content: `
+${brandHeader({ subtitle: 'Grief Program Registration' })}
+
+<tr>
+  <td style="padding:36px 40px 8px;">
+    <h1 style="margin:0 0 8px;font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:500;color:${COLORS.sage};letter-spacing:-0.01em;line-height:1.25;">
+      ${d.firstName} ${d.lastName} has registered for Living &amp; Moving with Grief.
+    </h1>
+    <p style="margin:0 0 24px;font-size:14px;color:${COLORS.inkMuted};line-height:1.6;">
+      Submitted ${formatDate(d.submittedAt)} &middot; Fall 2026 cohort (Oct 20 &ndash; Nov 26).
+    </p>
+
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
+      <tr>
+        <td>
+          <a href="mailto:${d.email}?subject=Re%3A%20Living%20%26%20Moving%20with%20Grief%20Registration"
+             style="display:inline-block;background:${COLORS.sage};color:#ffffff;font-size:14px;font-weight:500;text-decoration:none;padding:11px 22px;border-radius:999px;letter-spacing:0.01em;">
+            Reply to ${d.firstName}
+          </a>
+        </td>
+        <td style="padding-left:10px;">
+          <a href="tel:${d.phone.replace(/[^0-9+]/g, '')}"
+             style="display:${d.phone ? 'inline-block' : 'none'};background:transparent;color:${COLORS.sage};font-size:14px;font-weight:500;text-decoration:none;padding:10px 22px;border-radius:999px;letter-spacing:0.01em;border:1.5px solid ${COLORS.sage};">
+            Call ${d.phone}
+          </a>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+
+<tr>
+  <td style="padding:0 40px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${COLORS.sageBg};border-radius:14px;">
+      <tr>
+        <td style="padding:24px 28px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.18em;color:${COLORS.sageLight};margin-bottom:14px;">
+            Registrant Details
+          </div>
+          ${row('Name', `${d.firstName} ${d.lastName}`)}
+          ${row('Email', `<a href="mailto:${d.email}" style="color:${COLORS.sage};text-decoration:none;font-weight:500;">${d.email}</a>`)}
+          ${d.phone ? row('Phone', `<a href="tel:${d.phone}" style="color:${COLORS.sage};text-decoration:none;">${d.phone}</a>`) : ''}
+          ${row('Attendees', pill(d.attendees || '1'))}
+          ${d.yogaExperience ? row('Yoga Exp.', d.yogaExperience) : ''}
+          ${d.benefitsCoverage ? row('Benefits', pill(d.benefitsCoverage, COLORS.accent)) : ''}
+          ${d.accessibility ? row('Access.', d.accessibility) : ''}
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+
+${
+  d.notes
+    ? `
+<tr>
+  <td style="padding:28px 40px 8px;">
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.18em;color:${COLORS.sageLight};margin-bottom:10px;">
+      Their Notes
+    </div>
+    <div style="background:${COLORS.bone};border-left:3px solid ${COLORS.sageLight};border-radius:0 12px 12px 0;padding:20px 22px;">
+      <p style="margin:0;font-size:15px;line-height:1.75;color:${COLORS.ink};white-space:pre-line;">${d.notes.replace(/\n/g, '<br>')}</p>
+    </div>
+  </td>
+</tr>`
+    : ''
+}
+
+<tr>
+  <td style="padding:24px 40px 32px;">
+    <p style="margin:0;font-size:13px;color:${COLORS.inkMuted};line-height:1.6;">
+      Tip: replying to this email goes directly to ${d.firstName}.
+    </p>
+  </td>
+</tr>
+
+${brandFooter()}
+`,
+  })
+
+  const text = [
+    'New Living & Moving with Grief registration',
+    '',
+    `Name:         ${d.firstName} ${d.lastName}`,
+    `Email:        ${d.email}`,
+    d.phone ? `Phone:        ${d.phone}` : null,
+    `Attendees:    ${d.attendees || '1'}`,
+    d.yogaExperience ? `Yoga Exp.:    ${d.yogaExperience}` : null,
+    d.benefitsCoverage ? `Benefits:     ${d.benefitsCoverage}` : null,
+    d.accessibility ? `Access.:      ${d.accessibility}` : null,
+    '',
+    d.notes ? 'Notes:' : null,
+    d.notes || null,
+    d.notes ? '' : null,
+    `Submitted ${formatDate(d.submittedAt)}`,
+    'Fall 2026 cohort · Oct 20 – Nov 26 · Tuesdays 6:30–8:00pm · St Peter\'s United Church, York St',
+  ]
+    .filter((line) => line !== null)
+    .join('\n')
+
+  return { html, text }
+}
+
+export function buildGriefAutoReplyEmail(d) {
+  const html = wrap({
+    title: 'Your Living & Moving with Grief registration is in',
+    preheader: 'Thanks for registering — here is what to expect next.',
+    content: `
+${brandHeader({ subtitle: 'Grief Program Confirmation' })}
+
+<tr>
+  <td style="padding:40px 40px 8px;">
+    <h1 style="margin:0 0 14px;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:500;color:${COLORS.sage};letter-spacing:-0.01em;line-height:1.2;">
+      Hi ${d.firstName}, your spot is reserved.
+    </h1>
+    <p style="margin:0 0 18px;font-size:16px;line-height:1.7;color:${COLORS.inkSoft};font-weight:400;">
+      Thank you for registering for <strong>Living &amp; Moving with Grief</strong> &mdash; our 6-week grief therapy and gentle yoga series running <strong>Oct 20 &ndash; Nov 26, 2026</strong>.
+    </p>
+    <p style="margin:0 0 18px;font-size:16px;line-height:1.7;color:${COLORS.inkSoft};font-weight:400;">
+      Christine will follow up within <strong>one business day</strong> with payment details, what to bring, and everything you&rsquo;ll need before the first session.
+    </p>
+    <p style="margin:0 0 24px;font-size:16px;line-height:1.7;color:${COLORS.inkSoft};font-weight:400;">
+      If anything changes or you have a question in the meantime, just reply to this email or reach Christine at <a href="mailto:cmcinnes4@gmail.com" style="color:${COLORS.sage};font-weight:500;text-decoration:none;">cmcinnes4@gmail.com</a>.
+    </p>
+  </td>
+</tr>
+
+<tr>
+  <td style="padding:0 40px 8px;">
+    <div style="background:${COLORS.sageBg};border-radius:14px;padding:22px 26px;">
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.18em;color:${COLORS.sageLight};margin-bottom:12px;">
+        Series details
+      </div>
+      ${row('When', 'Tuesdays, 6:30 – 8:00pm')}
+      ${row('Dates', 'Oct 20 – Nov 26, 2026 (6 weeks)')}
+      ${row('Where', "St Peter's United Church, York St")}
+      ${row('Cost', pill('$425 + HST', COLORS.accent))}
+    </div>
+  </td>
+</tr>
+
+<tr>
+  <td style="padding:24px 40px 8px;">
+    <div style="background:${COLORS.bone};border:1px solid ${COLORS.border};border-radius:12px;padding:20px 22px;">
+      <p style="margin:0 0 6px;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:16px;color:${COLORS.sage};line-height:1.5;">
+        All are welcome. No judgement. No expectations.
+      </p>
+      <p style="margin:0;font-size:13px;color:${COLORS.inkMuted};line-height:1.6;">
+        Come exactly as you are.
+      </p>
+    </div>
+  </td>
+</tr>
+
+<tr>
+  <td style="padding:24px 40px 32px;">
+    <p style="margin:0;font-size:13px;color:${COLORS.inkMuted};line-height:1.6;">
+      With care,<br/>
+      <strong style="color:${COLORS.inkSoft};">Christine McInnes &amp; Dawn Condon</strong><br/>
+      ACTive Minds Therapy &middot; Connected Living Yoga &amp; Wellness
+    </p>
+  </td>
+</tr>
+
+${brandFooter()}
+`,
+  })
+
+  const text = `Hi ${d.firstName},
+
+Thank you for registering for "Living & Moving with Grief" — our 6-week grief therapy and gentle yoga series running Oct 20 – Nov 26, 2026.
+
+Christine will follow up within one business day with payment details, what to bring, and everything you'll need before the first session.
+
+Series details:
+- When:    Tuesdays, 6:30 – 8:00pm
+- Dates:   Oct 20 – Nov 26, 2026 (6 weeks)
+- Where:   St Peter's United Church, York St
+- Cost:    $425 + HST per person
+
+All are welcome. No judgement. No expectations. Come exactly as you are.
+
+With care,
+Christine McInnes & Dawn Condon
+ACTive Minds Therapy · Connected Living Yoga & Wellness`
+
+  return { html, text }
+}
+
 function row(key, value) {
   return `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">

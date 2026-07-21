@@ -3,6 +3,8 @@ import {
   buildAutoReplyEmail,
   buildRetreatRegistrationEmail,
   buildRetreatAutoReplyEmail,
+  buildGriefRegistrationEmail,
+  buildGriefAutoReplyEmail,
 } from './emailTemplate.mjs'
 import {
   createHash,
@@ -22,6 +24,7 @@ const parseList = (s) =>
 
 const TO_EMAILS = parseList(process.env.PRACTICE_EMAIL)
 const RETREAT_EMAILS = parseList(process.env.RETREAT_EMAIL)
+const GRIEF_EMAILS = parseList(process.env.GRIEF_EMAIL)
 const RECIPIENTS = {
   contact: TO_EMAILS.length ? TO_EMAILS : ['info@activemindstherapy.com'],
   retreat: RETREAT_EMAILS.length
@@ -29,6 +32,7 @@ const RECIPIENTS = {
     : TO_EMAILS.length
     ? TO_EMAILS
     : ['info@activemindstherapy.com'],
+  grief: GRIEF_EMAILS.length ? GRIEF_EMAILS : ['cmcinnes4@gmail.com'],
 }
 const FROM_EMAIL = process.env.FROM_EMAIL || 'no-reply@activemindstherapy.com'
 const FROM_NAME = process.env.FROM_NAME || 'ACTive Minds Therapy Website'
@@ -59,6 +63,17 @@ const SUBMISSION_FIELDS = {
     'organization',
     'dietary',
     'pdFund',
+    'notes',
+  ],
+  grief: [
+    'firstName',
+    'lastName',
+    'email',
+    'phone',
+    'attendees',
+    'yogaExperience',
+    'benefitsCoverage',
+    'accessibility',
     'notes',
   ],
 }
@@ -209,7 +224,7 @@ const listSubmissions = async ({ submissionType, cursor, limit }) => {
     throw new Error('Submissions table is not configured')
   }
 
-  const type = submissionType === 'retreat' ? 'retreat' : 'contact'
+  const type = ['retreat', 'grief'].includes(submissionType) ? submissionType : 'contact'
   const pageSize = Math.max(1, Math.min(Number(limit) || 25, 100))
   const { client, QueryCommand } = getDynamo()
   const response = await client.send(
@@ -234,6 +249,7 @@ const listSubmissions = async ({ submissionType, cursor, limit }) => {
 const REQUIRED_BY_TYPE = {
   contact: ['firstName', 'lastName', 'email', 'service', 'message'],
   retreat: ['firstName', 'lastName', 'email', 'location', 'role'],
+  grief: ['firstName', 'lastName', 'email'],
 }
 
 const validate = (data, formType) => {
@@ -348,7 +364,9 @@ export const handler = async (event) => {
     return json(200, { ok: true })
   }
 
-  const formType = data?.formType === 'retreat' ? 'retreat' : 'contact'
+  const formType = ['retreat', 'grief'].includes(data?.formType)
+    ? data.formType
+    : 'contact'
 
   const validationError = validate(data, formType)
   if (validationError) return json(400, { error: validationError })
@@ -361,42 +379,61 @@ export const handler = async (event) => {
     submittedAt: new Date().toISOString(),
   }
 
-  const payload =
-    formType === 'retreat'
-      ? {
-          ...basePayload,
-          location: data.location.trim(),
-          role: data.role.trim(),
-          organization: data.organization?.trim() || '',
-          dietary: data.dietary?.trim() || '',
-          pdFund: data.pdFund?.trim() || 'Not applicable',
-          notes: data.notes?.trim() || '',
-        }
-      : {
-          ...basePayload,
-          service: data.service.trim(),
-          clinician: data.clinician?.trim() || '',
-          message: data.message.trim(),
-        }
+  let payload
+  if (formType === 'retreat') {
+    payload = {
+      ...basePayload,
+      location: data.location.trim(),
+      role: data.role.trim(),
+      organization: data.organization?.trim() || '',
+      dietary: data.dietary?.trim() || '',
+      pdFund: data.pdFund?.trim() || 'Not applicable',
+      notes: data.notes?.trim() || '',
+    }
+  } else if (formType === 'grief') {
+    payload = {
+      ...basePayload,
+      attendees: data.attendees?.trim() || '1',
+      yogaExperience: data.yogaExperience?.trim() || '',
+      benefitsCoverage: data.benefitsCoverage?.trim() || '',
+      accessibility: data.accessibility?.trim() || '',
+      notes: data.notes?.trim() || '',
+    }
+  } else {
+    payload = {
+      ...basePayload,
+      service: data.service.trim(),
+      clinician: data.clinician?.trim() || '',
+      message: data.message.trim(),
+    }
+  }
 
   const safe = Object.fromEntries(
     Object.entries(payload).map(([k, v]) => [k, escape(v)]),
   )
 
-  const isRetreat = formType === 'retreat'
   const recipients = RECIPIENTS[formType]
-  const inquiry = isRetreat
-    ? buildRetreatRegistrationEmail(safe)
-    : buildInquiryEmail(safe)
-  const reply = isRetreat
-    ? buildRetreatAutoReplyEmail(safe)
-    : buildAutoReplyEmail(safe)
-  const inquirySubject = isRetreat
-    ? `Retreat registration: ${payload.firstName} ${payload.lastName} — ${payload.location}`
-    : `New inquiry: ${payload.firstName} ${payload.lastName} — ${payload.service}`
-  const replySubject = isRetreat
-    ? 'Your retreat registration is in — ACTive Minds Therapy'
-    : 'We received your message — ACTive Minds Therapy'
+
+  let inquiry
+  let reply
+  let inquirySubject
+  let replySubject
+  if (formType === 'retreat') {
+    inquiry = buildRetreatRegistrationEmail(safe)
+    reply = buildRetreatAutoReplyEmail(safe)
+    inquirySubject = `Retreat registration: ${payload.firstName} ${payload.lastName} — ${payload.location}`
+    replySubject = 'Your retreat registration is in — ACTive Minds Therapy'
+  } else if (formType === 'grief') {
+    inquiry = buildGriefRegistrationEmail(safe)
+    reply = buildGriefAutoReplyEmail(safe)
+    inquirySubject = `Grief program registration: ${payload.firstName} ${payload.lastName}`
+    replySubject = 'Your Living & Moving with Grief registration is in — ACTive Minds Therapy'
+  } else {
+    inquiry = buildInquiryEmail(safe)
+    reply = buildAutoReplyEmail(safe)
+    inquirySubject = `New inquiry: ${payload.firstName} ${payload.lastName} — ${payload.service}`
+    replySubject = 'We received your message — ACTive Minds Therapy'
+  }
 
   try {
     await sendEmail({

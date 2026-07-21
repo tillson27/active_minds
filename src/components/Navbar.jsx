@@ -8,12 +8,14 @@ const NAV_ITEMS = [
   { id: 'specializations', label: 'Approach' },
   { id: 'services', label: 'Services' },
   { id: 'team', label: 'Our Team' },
-  { id: 'programs', label: 'Programs' },
+  { id: 'events', label: 'Events' },
   { id: 'contact', label: 'Contact' },
 ]
 
 export default function Navbar({ variant }) {
   const onRetreat = variant === 'retreat'
+  const onGrief = variant === 'grief'
+  const onSubpage = onRetreat || onGrief
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -37,11 +39,11 @@ export default function Navbar({ variant }) {
     document.body.classList.remove('menu-open')
   }, [])
 
-  const sectionHref = (id) => (onRetreat ? `${withBase('/')}#${id}` : `#${id}`)
-  const brandHref = onRetreat ? withBase('/') : '#top'
+  const sectionHref = (id) => (onSubpage ? `${withBase('/')}#${id}` : `#${id}`)
+  const brandHref = onSubpage ? withBase('/') : '#top'
   const brandClick = (e) => {
     close()
-    if (onRetreat) handleSpaClick('/')(e)
+    if (onSubpage) handleSpaClick('/')(e)
   }
 
   return (
@@ -72,7 +74,7 @@ export default function Navbar({ variant }) {
             </li>
           ))}
           <li>
-            {onRetreat ? (
+            {onSubpage ? (
               <a
                 href="#register"
                 className="btn btn-primary nav-cta"

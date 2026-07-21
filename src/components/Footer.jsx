@@ -26,7 +26,7 @@ export default function Footer() {
             <li><a href="#specializations">Approach</a></li>
             <li><a href="#services">Services</a></li>
             <li><a href="#team">Our Team</a></li>
-            <li><a href="#programs">Programs</a></li>
+            <li><a href="#events">Events</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
         </div>

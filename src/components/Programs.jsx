@@ -25,13 +25,13 @@ const PROGRAMS = [
   },
   {
     icon: HeartHandshake,
-    label: 'Group Program',
+    label: 'New · Fall 2026 Cohort',
     title: 'Living & Moving with Grief',
     body:
       'A combined grief therapy and gentle yoga experience that offers a safe, non-judgmental space to share, learn, and connect with others who are grieving. Participants explore how the body responds to grief and practice mindful movements designed to ease physical stress. No yoga experience required.',
     meta: [
-      { key: 'Investment', val: '$350 + HST' },
-      { key: 'Format', val: 'In-person, group' },
+      { key: 'Investment', val: '$425 + HST' },
+      { key: 'Dates', val: 'Oct 20 – Nov 26, 2026' },
     ],
     facilitators: (
       <>
@@ -40,8 +40,8 @@ const PROGRAMS = [
         Yoga &amp; Wellness).
       </>
     ),
-    cta: 'Inquire about next cohort',
-    href: '#contact',
+    cta: 'Learn more & register',
+    href: '/grief-program',
     warm: false,
   },
   {
@@ -63,17 +63,17 @@ const PROGRAMS = [
 
 export default function Programs() {
   return (
-    <section className="programs" id="programs" aria-labelledby="programs-heading">
+    <section className="programs" id="events" aria-labelledby="events-heading">
       <div className="container">
         <Reveal className="section-header center">
-          <span className="eyebrow" style={{ justifyContent: 'center' }}>Programs</span>
-          <h2 id="programs-heading" className="section-title">
-            Specialized programs <em>built for moments that matter</em>.
+          <span className="eyebrow" style={{ justifyContent: 'center' }}>Events</span>
+          <h2 id="events-heading" className="section-title">
+            Upcoming events <em>built for moments that matter</em>.
           </h2>
           <p className="section-lead">
-            Beyond one-to-one therapy, we run focused programs that combine
-            evidence-based practice with the support of a thoughtful, intentional
-            group.
+            Beyond one-to-one therapy, we run focused events and group programs
+            that combine evidence-based practice with the support of a
+            thoughtful, intentional community.
           </p>
         </Reveal>
 

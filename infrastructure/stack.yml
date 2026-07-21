@@ -34,6 +34,13 @@ Parameters:
     Default: info@activemindstherapy.com
     Description: Inbox that receives new contact form submissions.
 
+  GriefEmail:
+    Type: String
+    Default: cmcinnes4@gmail.com
+    Description: >
+      Inbox that receives Living & Moving with Grief program registrations.
+      Comma-separated list; defaults to Christine McInnes.
+
   FromEmail:
     Type: String
     Default: no-reply@activemindstherapy.com
@@ -236,6 +243,7 @@ Resources:
       Environment:
         Variables:
           PRACTICE_EMAIL: !Ref PracticeEmail
+          GRIEF_EMAIL: !Ref GriefEmail
           FROM_EMAIL: !Ref FromEmail
           FROM_NAME: "ACTive Minds Therapy Website"
           RESEND_API_KEY: !Ref ResendApiKey

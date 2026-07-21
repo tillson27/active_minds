@@ -15,6 +15,7 @@
 #   STACK_NAME           CloudFormation stack name (default: active-minds-site)
 #   AWS_REGION           Region (default: us-east-1) — must be us-east-1 for the cert
 #   PRACTICE_EMAIL       Inbox that receives inquiries
+#   GRIEF_EMAIL          Inbox that receives grief program registrations
 #   FROM_EMAIL           Verified Resend sender
 #   ADMIN_PASSWORD_HASH  Precomputed SHA-256 hex hash, used instead of ADMIN_PASSWORD
 #   ADMIN_SESSION_SECRET Optional secret for signing /admin sessions
@@ -24,6 +25,7 @@ set -euo pipefail
 STACK_NAME="${STACK_NAME:-active-minds-site}"
 AWS_REGION="${AWS_REGION:-us-east-1}"
 PRACTICE_EMAIL="${PRACTICE_EMAIL:-info@activemindstherapy.com}"
+GRIEF_EMAIL="${GRIEF_EMAIL:-cmcinnes4@gmail.com}"
 FROM_EMAIL="${FROM_EMAIL:-no-reply@activemindstherapy.com}"
 
 if [[ -z "${ACM_CERTIFICATE_ARN:-}" ]]; then
@@ -59,6 +61,7 @@ aws cloudformation deploy \
   --parameter-overrides \
     AcmCertificateArn="$ACM_CERTIFICATE_ARN" \
     PracticeEmail="$PRACTICE_EMAIL" \
+    GriefEmail="$GRIEF_EMAIL" \
     FromEmail="$FROM_EMAIL" \
     ResendApiKey="$RESEND_API_KEY" \
     AdminPasswordHash="$ADMIN_PASSWORD_HASH" \

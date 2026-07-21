@@ -11,7 +11,9 @@ import Programs from './components/Programs'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
 import Retreat from './components/Retreat'
+import GriefProgram from './components/GriefProgram'
 import Admin from './components/Admin'
+import EventsPopup from './components/EventsPopup'
 
 const stripBase = (pathname) => {
   const base = import.meta.env.BASE_URL.replace(/\/$/, '')
@@ -20,6 +22,7 @@ const stripBase = (pathname) => {
 }
 
 const isRetreatPath = (pathname) => /^\/retreat\/?$/i.test(stripBase(pathname))
+const isGriefPath = (pathname) => /^\/grief-program\/?$/i.test(stripBase(pathname))
 const isAdminPath = (pathname) => /^\/admin\/?$/i.test(stripBase(pathname))
 
 function App() {
@@ -57,6 +60,18 @@ function App() {
     )
   }
 
+  if (isGriefPath(path)) {
+    return (
+      <>
+        <Navbar variant="grief" />
+        <main id="main">
+          <GriefProgram />
+        </main>
+        <Footer />
+      </>
+    )
+  }
+
   return (
     <>
       <Navbar />
@@ -71,6 +86,7 @@ function App() {
         <Contact />
       </main>
       <Footer />
+      <EventsPopup />
     </>
   )
 }

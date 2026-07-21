@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   Download,
+  HeartHandshake,
   Inbox,
   Loader2,
   Lock,
@@ -44,6 +45,22 @@ const TABLES = {
       { key: 'notes', label: 'Notes', long: true },
     ],
   },
+  grief: {
+    label: 'Grief Program',
+    icon: HeartHandshake,
+    columns: [
+      { key: 'submittedAt', label: 'Submitted' },
+      { key: 'firstName', label: 'First' },
+      { key: 'lastName', label: 'Last' },
+      { key: 'email', label: 'Email' },
+      { key: 'phone', label: 'Phone' },
+      { key: 'attendees', label: 'Attendees' },
+      { key: 'yogaExperience', label: 'Yoga Exp.' },
+      { key: 'benefitsCoverage', label: 'Benefits' },
+      { key: 'accessibility', label: 'Accessibility', long: true },
+      { key: 'notes', label: 'Notes', long: true },
+    ],
+  },
 }
 
 const parseStoredSession = () => {
@@ -76,9 +93,9 @@ export default function Admin() {
   const [session, setSession] = useState(parseStoredSession)
   const [password, setPassword] = useState('')
   const [activeType, setActiveType] = useState('contact')
-  const [submissions, setSubmissions] = useState({ contact: [], retreat: [] })
-  const [cursors, setCursors] = useState({ contact: null, retreat: null })
-  const [loaded, setLoaded] = useState({ contact: false, retreat: false })
+  const [submissions, setSubmissions] = useState({ contact: [], retreat: [], grief: [] })
+  const [cursors, setCursors] = useState({ contact: null, retreat: null, grief: null })
+  const [loaded, setLoaded] = useState({ contact: false, retreat: false, grief: false })
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState('')
@@ -164,7 +181,7 @@ export default function Admin() {
       sessionStorage.setItem(SESSION_KEY, JSON.stringify(nextSession))
       setSession(nextSession)
       setPassword('')
-      setLoaded({ contact: false, retreat: false })
+      setLoaded({ contact: false, retreat: false, grief: false })
     } catch (err) {
       setError(err.message)
     } finally {
