@@ -1,0 +1,94 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  One-time bootstrap: GitHub OIDC provider + IAM role that GitHub Actions
+  assumes to deploy the ACTive Minds site. Deploy this stack once (from your
+  workstation), then set the RoleArn output as the AWS_DEPLOY_ROLE_ARN secret
+  on the GitHub repo.
+
+Parameters:
+  GitHubOrg:
+    Type: String
+    Default: tillson27
+    Description: GitHub org or user that owns the repo.
+
+  GitHubRepo:
+    Type: String
+    Default: active_minds
+    Description: GitHub repo name.
+
+  GitHubBranch:
+    Type: String
+    Default: main
+    Description: Branch allowed to assume the role. Only pushes to this branch can deploy.
+
+  RoleName:
+    Type: String
+    Default: active-minds-github-deploy
+
+  CreateOidcProvider:
+    Type: String
+    Default: 'true'
+    AllowedValues: ['true', 'false']
+    Description: >
+      Set to false if the GitHub OIDC provider already exists in this account
+      (they're account-wide and can only exist once). If false, set
+      ExistingOidcProviderArn.
+
+  ExistingOidcProviderArn:
+    Type: String
+    Default: ''
+    Description: >
+      ARN of the pre-existing GitHub OIDC provider. Only used when
+      CreateOidcProvider is false.
+
+Conditions:
+  ShouldCreateProvider: !Equals [!Ref CreateOidcProvider, 'true']
+
+Resources:
+  GitHubOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Condition: ShouldCreateProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - sts.amazonaws.com
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aec5
+
+  DeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref RoleName
+      Description: >
+        Assumed by GitHub Actions in tillson27/active_minds to deploy the site,
+        Lambda, and CloudFormation stack.
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !If
+                - ShouldCreateProvider
+                - !Ref GitHubOidcProvider
+                - !Ref ExistingOidcProviderArn
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub 'repo:${GitHubOrg}/${GitHubRepo}:ref:refs/heads/${GitHubBranch}'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+Outputs:
+  RoleArn:
+    Description: Set this as the AWS_DEPLOY_ROLE_ARN secret on the GitHub repo.
+    Value: !GetAtt DeployRole.Arn
+
+  OidcProviderArn:
+    Description: ARN of the GitHub OIDC provider (created or reused).
+    Value: !If
+      - ShouldCreateProvider
+      - !Ref GitHubOidcProvider
+      - !Ref ExistingOidcProviderArn
