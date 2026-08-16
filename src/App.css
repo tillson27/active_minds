@@ -1914,6 +1914,28 @@
   top: 100px;
 }
 
+.retreat-closed-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 1.5rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--sage-200);
+  border-radius: 999px;
+  background: rgba(251, 249, 244, 0.72);
+  color: var(--sage-800);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.retreat-closed-card p + p { margin-top: 0.9rem; }
+
+.retreat-closed-card a {
+  color: var(--sage-700);
+  font-weight: 500;
+  border-bottom: 1px solid var(--sage-200);
+}
+
 /* ============ ADMIN ============ */
 .admin-page {
   min-height: 100vh;

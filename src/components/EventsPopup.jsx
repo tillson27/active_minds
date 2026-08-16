@@ -87,8 +87,9 @@ export default function EventsPopup() {
         </div>
         <h3 id="events-popup-title">Check out our upcoming events</h3>
         <p id="events-popup-body">
-          Our fall grief series and school-year wellness retreat are open for
-          registration.
+          Registration for our fall grief series is open. The school-year
+          wellness retreat is closed for now &mdash; we expect to run it again
+          soon.
         </p>
         <div className="events-popup-actions">
           <a

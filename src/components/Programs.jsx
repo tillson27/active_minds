@@ -5,21 +5,26 @@ import { withBase, handleSpaClick } from '../lib/navigate'
 const PROGRAMS = [
   {
     icon: Leaf,
-    label: 'New · Wellness Retreat',
+    label: 'Wellness Retreat · Registration closed',
     title: 'Preparing for the School Year — A Full-Day Retreat',
     body:
       'A full-day experiential retreat for school professionals — teachers, EAs, counsellors, and school-based clinicians. Develop grounding strategies, strengthen self-compassion, and build an individualized wellness plan for the year ahead. Nature-based mindfulness, guided reflection, and practical tools.',
     meta: [
       { key: 'Investment', val: '$200' },
-      { key: 'Dates', val: 'Aug 18 · Aug 20' },
+      { key: 'Next dates', val: 'To be announced' },
     ],
     facilitators: (
       <>
         <strong>Facilitated by</strong> Tricia Goeldner, MSW, RSW &amp; Alison
-        Orford, MSW, RSW. OSSTF members may be eligible for PD Fund support.
+        Orford, MSW, RSW. Registration for the August 2026 dates is closed —
+        we expect to run this retreat again soon. Email{' '}
+        <a href="mailto:tricia@activemindstherapy.com">
+          tricia@activemindstherapy.com
+        </a>{' '}
+        to hear about the next one.
       </>
     ),
-    cta: 'Learn more & register',
+    cta: 'Learn more',
     href: '/retreat',
     warm: false,
   },

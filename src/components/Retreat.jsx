@@ -13,6 +13,7 @@ import {
   Sparkles,
   ArrowRight,
   CheckCircle,
+  CalendarClock,
   Loader2,
 } from 'lucide-react'
 import Reveal from './Reveal'
@@ -114,6 +115,12 @@ const PD_FUND_OPTIONS = [
   'I will arrange this on my own',
 ]
 
+// Flip back to true when registration reopens for the next retreat.
+const REGISTRATION_OPEN = false
+
+const NOTIFY_EMAIL = 'tricia@activemindstherapy.com'
+const NOTIFY_MAILTO = `mailto:${NOTIFY_EMAIL}?subject=Please%20notify%20me%20about%20the%20next%20Wellness%20Retreat`
+
 const API_URL =
   import.meta.env.VITE_CONTACT_API_URL ||
   '/api/contact'
@@ -143,6 +150,7 @@ export default function Retreat() {
 
   const onSubmit = async (e) => {
     e.preventDefault()
+    if (!REGISTRATION_OPEN) return
     setSending(true)
     setError('')
     try {
@@ -182,13 +190,34 @@ export default function Retreat() {
               A full-day experiential retreat to help you reconnect with
               wellbeing, passion, and purpose.
             </p>
+            {!REGISTRATION_OPEN && (
+              <p className="retreat-closed-flag">
+                <CalendarClock size={16} aria-hidden="true" />
+                Registration for the August 2026 retreat is now closed &mdash;
+                we expect to run it again soon.
+              </p>
+            )}
             <div className="retreat-hero-actions">
-              <a href="#register" className="btn btn-primary">
-                Register Now <ArrowRight className="arrow" size={18} />
-              </a>
-              <a href="#details" className="btn btn-secondary">
-                See what&rsquo;s included
-              </a>
+              {REGISTRATION_OPEN ? (
+                <>
+                  <a href="#register" className="btn btn-primary">
+                    Register Now <ArrowRight className="arrow" size={18} />
+                  </a>
+                  <a href="#details" className="btn btn-secondary">
+                    See what&rsquo;s included
+                  </a>
+                </>
+              ) : (
+                <>
+                  <a href="#details" className="btn btn-primary">
+                    See what&rsquo;s included{' '}
+                    <ArrowRight className="arrow" size={18} />
+                  </a>
+                  <a href={NOTIFY_MAILTO} className="btn btn-secondary">
+                    Email us about the next one
+                  </a>
+                </>
+              )}
             </div>
           </Reveal>
         </div>
@@ -311,7 +340,9 @@ export default function Retreat() {
         <div className="container">
           <div className="retreat-register-grid">
             <Reveal className="retreat-register-info">
-              <span className="eyebrow">Reserve your spot</span>
+              <span className="eyebrow">
+                {REGISTRATION_OPEN ? 'Reserve your spot' : 'Registration closed'}
+              </span>
               <h2 className="section-title">
                 Invest in <em>you</em>. It changes everything.
               </h2>
@@ -347,7 +378,27 @@ export default function Retreat() {
             </Reveal>
 
             <Reveal className="contact-form retreat-form" delay={120}>
-              {submitted ? (
+              {!REGISTRATION_OPEN ? (
+                <div className="form-success retreat-closed-card">
+                  <div className="form-success-icon">
+                    <CalendarClock size={28} />
+                  </div>
+                  <h3>Registration is closed</h3>
+                  <p>
+                    Registration for the August 2026 Wellness Retreat for School
+                    Professionals is now closed. We plan to offer this retreat
+                    again soon &mdash; new dates will be posted here as soon as
+                    they&rsquo;re confirmed.
+                  </p>
+                  <p>
+                    If you&rsquo;d like to hear about the next retreat, or
+                    you&rsquo;re interested in bringing it to your school or
+                    board, email Tricia at{' '}
+                    <a href={NOTIFY_MAILTO}>{NOTIFY_EMAIL}</a> and we&rsquo;ll
+                    be in touch.
+                  </p>
+                </div>
+              ) : submitted ? (
                 <div className="form-success">
                   <div className="form-success-icon">
                     <CheckCircle size={28} />
