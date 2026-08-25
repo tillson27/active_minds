@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
   HandHeart,
   Heart,
@@ -10,8 +9,7 @@ import {
   Sparkles,
   Leaf,
   ArrowRight,
-  CheckCircle,
-  Loader2,
+  ExternalLink,
   Waves,
 } from 'lucide-react'
 import Reveal from './Reveal'
@@ -98,69 +96,10 @@ const LOGISTICS = [
   },
 ]
 
-const API_URL =
-  import.meta.env.VITE_CONTACT_API_URL ||
-  '/api/contact'
-
-const initialForm = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  attendees: '1',
-  yogaExperience: 'No — this will be my first time',
-  benefitsCoverage: 'Not sure yet',
-  accessibility: '',
-  notes: '',
-  // Honeypot
-  website: '',
-}
-
-const YOGA_OPTIONS = [
-  'No — this will be my first time',
-  'A little — I have tried yoga a few times',
-  'Yes — I practice regularly',
-]
-
-const BENEFITS_OPTIONS = [
-  'Not sure yet',
-  'Yes — I will submit through insurance / benefits',
-  'No — I will cover it personally',
-]
+const REGISTRATION_URL =
+  'https://www.wellnessliving.com/rs/catalog-view.html?k_business=365905&id_sale=3&k_id=1008917'
 
 export default function GriefProgram() {
-  const [form, setForm] = useState(initialForm)
-  const [sending, setSending] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-  const [error, setError] = useState('')
-
-  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
-
-  const onSubmit = async (e) => {
-    e.preventDefault()
-    setSending(true)
-    setError('')
-    try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, formType: 'grief' }),
-      })
-      if (!res.ok) throw new Error('bad response')
-      setSubmitted(true)
-      window.scrollTo({
-        top: (document.getElementById('register')?.offsetTop || 0) - 100,
-        behavior: 'smooth',
-      })
-    } catch {
-      setError(
-        'We had trouble submitting your registration. Please try again or email Christine directly at cmcinnes4@gmail.com.',
-      )
-    } finally {
-      setSending(false)
-    }
-  }
-
   return (
     <div className="retreat-page grief-page">
       {/* ---------- HERO ---------- */}
@@ -321,7 +260,7 @@ export default function GriefProgram() {
         </div>
       </section>
 
-      {/* ---------- REGISTRATION FORM ---------- */}
+      {/* ---------- REGISTRATION ---------- */}
       <section className="retreat-register" id="register">
         <div className="container">
           <div className="retreat-register-grid">
@@ -359,211 +298,36 @@ export default function GriefProgram() {
               </p>
             </Reveal>
 
-            <Reveal className="contact-form retreat-form" delay={120}>
-              {submitted ? (
-                <div className="form-success">
-                  <div className="form-success-icon">
-                    <CheckCircle size={28} />
-                  </div>
-                  <h3>Your registration is in!</h3>
-                  <p>
-                    Thank you for reserving your spot in the Living &amp;
-                    Moving with Grief series. Christine will be in touch within
-                    one business day with payment details and everything
-                    you&rsquo;ll need before the first session.
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={onSubmit} noValidate>
-                  <div className="form-eyebrow">Registration Form</div>
-                  <h3>Reserve your spot</h3>
-                  <p>
-                    Fill in your details below and Christine will follow up
-                    with payment and confirmation details.
-                  </p>
+            <Reveal className="contact-form retreat-form grief-registration-card" delay={120}>
+              <div className="form-eyebrow">Registration</div>
+              <h3>Register through WellnessLiving</h3>
+              <p>
+                Registration for Living &amp; Moving with Grief is handled
+                through WellnessLiving. To reserve your place, use the
+                registration page below.
+              </p>
 
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="firstName">First name</label>
-                      <input
-                        id="firstName"
-                        name="firstName"
-                        type="text"
-                        autoComplete="given-name"
-                        required
-                        value={form.firstName}
-                        onChange={onChange}
-                        placeholder="Jane"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="lastName">Last name</label>
-                      <input
-                        id="lastName"
-                        name="lastName"
-                        type="text"
-                        autoComplete="family-name"
-                        required
-                        value={form.lastName}
-                        onChange={onChange}
-                        placeholder="Doe"
-                      />
-                    </div>
-                  </div>
+              <a
+                className="btn btn-primary grief-registration-button"
+                href={REGISTRATION_URL}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Open registration page <ExternalLink size={18} />
+              </a>
 
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="email">Email</label>
-                      <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        autoComplete="email"
-                        required
-                        value={form.email}
-                        onChange={onChange}
-                        placeholder="you@email.com"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="phone">
-                        Phone <span className="opt">(optional)</span>
-                      </label>
-                      <input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        autoComplete="tel"
-                        value={form.phone}
-                        onChange={onChange}
-                        placeholder="(705) 555-0123"
-                      />
-                    </div>
-                  </div>
+              <div className="grief-registration-link">
+                <span>Registration URL</span>
+                <a href={REGISTRATION_URL} target="_blank" rel="noreferrer">
+                  wellnessliving.com/rs/catalog-view.html?k_business=365905&amp;id_sale=3&amp;k_id=1008917
+                </a>
+              </div>
 
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="attendees">
-                        Number of attendees
-                      </label>
-                      <select
-                        id="attendees"
-                        name="attendees"
-                        value={form.attendees}
-                        onChange={onChange}
-                      >
-                        <option value="1">Just me</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="yogaExperience">Yoga experience</label>
-                      <select
-                        id="yogaExperience"
-                        name="yogaExperience"
-                        value={form.yogaExperience}
-                        onChange={onChange}
-                      >
-                        {YOGA_OPTIONS.map((o) => (
-                          <option key={o} value={o}>{o}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="benefitsCoverage">
-                      Insurance / benefits coverage
-                    </label>
-                    <select
-                      id="benefitsCoverage"
-                      name="benefitsCoverage"
-                      value={form.benefitsCoverage}
-                      onChange={onChange}
-                    >
-                      {BENEFITS_OPTIONS.map((o) => (
-                        <option key={o} value={o}>{o}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="accessibility">
-                      Accessibility or mobility needs <span className="opt">(optional)</span>
-                    </label>
-                    <input
-                      id="accessibility"
-                      name="accessibility"
-                      type="text"
-                      value={form.accessibility}
-                      onChange={onChange}
-                      placeholder="e.g. seated modifications, chair-only, mobility considerations"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="notes">
-                      Anything you&rsquo;d like Christine &amp; Dawn to know? <span className="opt">(optional)</span>
-                    </label>
-                    <textarea
-                      id="notes"
-                      name="notes"
-                      rows={4}
-                      value={form.notes}
-                      onChange={onChange}
-                      placeholder="Questions, context you'd like us to hold, or anything else on your mind…"
-                    />
-                  </div>
-
-                  {/* Honeypot */}
-                  <div
-                    aria-hidden="true"
-                    style={{
-                      position: 'absolute',
-                      left: '-9999px',
-                      width: 1,
-                      height: 1,
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <label htmlFor="website">Website</label>
-                    <input
-                      id="website"
-                      name="website"
-                      type="text"
-                      tabIndex={-1}
-                      autoComplete="off"
-                      value={form.website}
-                      onChange={onChange}
-                    />
-                  </div>
-
-                  <p className="form-consent">
-                    By submitting, you&rsquo;re reserving a spot subject to
-                    confirmation and payment. We never share your information.
-                  </p>
-
-                  {error && <div className="form-error">{error}</div>}
-
-                  <button
-                    type="submit"
-                    className="btn btn-primary form-submit"
-                    disabled={sending}
-                  >
-                    {sending ? (
-                      <>
-                        <Loader2 size={18} className="spin" /> Submitting…
-                      </>
-                    ) : (
-                      <>
-                        Submit registration <ArrowRight className="arrow" size={18} />
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
+              <p className="grief-registration-note">
+                You&rsquo;ll complete registration and payment details on the
+                WellnessLiving page. Questions before registering? Christine is
+                still available by email or phone.
+              </p>
             </Reveal>
           </div>
         </div>
