@@ -83,9 +83,9 @@ const LOGISTICS = [
     title: 'Location',
     body: (
       <>
-        St Peter&rsquo;s United Church
+        Lion&rsquo;s Resource Centre
         <br />
-        York St, Sudbury
+        1233 Paris St, Sudbury
       </>
     ),
   },
@@ -284,7 +284,7 @@ export default function GriefProgram() {
                   <Heart size={16} /> Tuesdays, 6:30 – 8:00pm · Oct 20 – Nov 26, 2026
                 </li>
                 <li>
-                  <Heart size={16} /> St Peter&rsquo;s United Church, York St
+                  <Heart size={16} /> Lion&rsquo;s Resource Centre, 1233 Paris St
                 </li>
                 <li>
                   <Heart size={16} /> Receipt provided for insurance / benefits
