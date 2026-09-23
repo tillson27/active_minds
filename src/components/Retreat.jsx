@@ -164,7 +164,7 @@ export default function Retreat() {
       window.scrollTo({ top: document.getElementById('register')?.offsetTop - 100 || 0, behavior: 'smooth' })
     } catch {
       setError(
-        'We had trouble submitting your registration. Please try again or email us at activemindsalison@gmail.com.',
+        'We had trouble submitting your registration. Please try again or email us at info@activemindstherapy.com.',
       )
     } finally {
       setSending(false)
@@ -370,8 +370,8 @@ export default function Retreat() {
 
               <p className="retreat-register-contact">
                 Questions? Email us at{' '}
-                <a href="mailto:activemindsalison@gmail.com">
-                  activemindsalison@gmail.com
+                <a href="mailto:info@activemindstherapy.com">
+                  info@activemindstherapy.com
                 </a>
                 .
               </p>

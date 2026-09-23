@@ -24,8 +24,8 @@ set -euo pipefail
 
 STACK_NAME="${STACK_NAME:-active-minds-site}"
 AWS_REGION="${AWS_REGION:-us-east-1}"
-PRACTICE_EMAIL="${PRACTICE_EMAIL:-info@activemindstherapy.com}"
-GRIEF_EMAIL="${GRIEF_EMAIL:-cmcinnes4@gmail.com}"
+PRACTICE_EMAIL="${PRACTICE_EMAIL:-triciagoeldner@gmail.com,activemindsalison@gmail.com,cmcinnes4@gmail.com,tricia@activemindstherapy.com,alison@activemindstherapy.com,christine@activemindstherapy.com}"
+GRIEF_EMAIL="${GRIEF_EMAIL:-cmcinnes4@gmail.com,christine@activemindstherapy.com}"
 FROM_EMAIL="${FROM_EMAIL:-no-reply@activemindstherapy.com}"
 
 if [[ -z "${ACM_CERTIFICATE_ARN:-}" ]]; then

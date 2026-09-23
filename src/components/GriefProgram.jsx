@@ -292,8 +292,8 @@ export default function GriefProgram() {
               </ul>
 
               <p className="retreat-register-contact">
-                Questions? Email Christine at{' '}
-                <a href="mailto:cmcinnes4@gmail.com">cmcinnes4@gmail.com</a> or
+                Questions? Email us at{' '}
+                <a href="mailto:info@activemindstherapy.com">info@activemindstherapy.com</a> or
                 call <a href="tel:+12494442437">(249) 444-2437</a>.
               </p>
             </Reveal>

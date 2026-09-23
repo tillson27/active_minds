@@ -25,14 +25,26 @@ const parseList = (s) =>
 const TO_EMAILS = parseList(process.env.PRACTICE_EMAIL)
 const RETREAT_EMAILS = parseList(process.env.RETREAT_EMAIL)
 const GRIEF_EMAILS = parseList(process.env.GRIEF_EMAIL)
+const DEFAULT_PRACTICE_EMAILS = [
+  'triciagoeldner@gmail.com',
+  'activemindsalison@gmail.com',
+  'cmcinnes4@gmail.com',
+  'tricia@activemindstherapy.com',
+  'alison@activemindstherapy.com',
+  'christine@activemindstherapy.com',
+]
+const DEFAULT_GRIEF_EMAILS = [
+  'cmcinnes4@gmail.com',
+  'christine@activemindstherapy.com',
+]
 const RECIPIENTS = {
-  contact: TO_EMAILS.length ? TO_EMAILS : ['info@activemindstherapy.com'],
+  contact: TO_EMAILS.length ? TO_EMAILS : DEFAULT_PRACTICE_EMAILS,
   retreat: RETREAT_EMAILS.length
     ? RETREAT_EMAILS
     : TO_EMAILS.length
     ? TO_EMAILS
-    : ['info@activemindstherapy.com'],
-  grief: GRIEF_EMAILS.length ? GRIEF_EMAILS : ['cmcinnes4@gmail.com'],
+    : DEFAULT_PRACTICE_EMAILS,
+  grief: GRIEF_EMAILS.length ? GRIEF_EMAILS : DEFAULT_GRIEF_EMAILS,
 }
 const FROM_EMAIL = process.env.FROM_EMAIL || 'no-reply@activemindstherapy.com'
 const FROM_NAME = process.env.FROM_NAME || 'ACTive Minds Therapy Website'

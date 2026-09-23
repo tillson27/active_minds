@@ -1,6 +1,6 @@
 import { ExternalLink } from 'lucide-react'
 import Reveal from './Reveal'
-import alisonImg from '../assets/team/alison.jpg'
+import alisonImg from '../assets/team/alison.png'
 import christineImg from '../assets/team/christine.jpg'
 import triciaImg from '../assets/team/tricia.jpg'
 
