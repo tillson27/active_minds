@@ -15,7 +15,7 @@ export default function Footer() {
           <address style={{ marginTop: '0.75rem', fontStyle: 'normal', fontSize: '0.9rem', color: 'var(--ink-muted)' }}>
             ACTive Minds Therapy &amp; Consulting<br />
             510 Perivale Rd E, Spring Bay, ON, Canada<br />
-            <a href="tel:+17052075300">(705) 207-5300</a>
+            <a href="tel:+12495070200">(249) 507-0200</a>
           </address>
         </div>
 
@@ -45,7 +45,7 @@ export default function Footer() {
         <div className="footer-col">
           <h5>Contact</h5>
           <ul className="footer-links">
-            <li><a href="tel:+17052075300">(705) 207-5300</a></li>
+            <li><a href="tel:+12495070200">(249) 507-0200</a></li>
             <li>
               <a
                 href="https://activemindstherapyconsulting.janeapp.com/"

@@ -82,7 +82,7 @@ const brandFooter = (cta = '') => `
       ACTive Minds Therapy &amp; Consulting
     </p>
     <p style="margin:4px 0 0;font-size:12px;color:${COLORS.inkMuted};line-height:1.5;">
-      (705) 207-5300 &middot; Sudbury &amp; Manitoulin, Ontario
+      (249) 507-0200 &middot; Sudbury &amp; Manitoulin, Ontario
     </p>
   </td>
 </tr>`
@@ -203,7 +203,7 @@ ${brandHeader({ subtitle: 'Confirmation' })}
       Thank you for reaching out to ACTive Minds Therapy &amp; Consulting. We&rsquo;ve received your inquiry and one of our team will be in touch within <strong>one business day</strong>.
     </p>
     <p style="margin:0 0 24px;font-size:16px;line-height:1.7;color:${COLORS.inkSoft};font-weight:400;">
-      If your matter is more urgent, you can reach us by phone at <a href="tel:+17052075300" style="color:${COLORS.sage};font-weight:500;text-decoration:none;">(705) 207-5300</a>, or book a free 15-minute consultation directly through our online scheduler.
+      If your matter is more urgent, you can reach us by phone at <a href="tel:+12495070200" style="color:${COLORS.sage};font-weight:500;text-decoration:none;">(249) 507-0200</a>, or book a free 15-minute consultation directly through our online scheduler.
     </p>
 
     <table role="presentation" cellpadding="0" cellspacing="0" border="0">
@@ -263,7 +263,7 @@ ${brandFooter()}
 
 Thank you for reaching out to ACTive Minds Therapy & Consulting. We've received your message and one of our team will be in touch within one business day.
 
-If your matter is more urgent, you can call us at (705) 207-5300, or book a free 15-minute consultation here:
+If your matter is more urgent, you can call us at (249) 507-0200, or book a free 15-minute consultation here:
 https://activemindstherapyconsulting.janeapp.com/
 
 For your reference, here's a copy of what you sent:
@@ -274,7 +274,7 @@ ${d.message}
 With care,
 The ACTive Minds Therapy Team
 
-(705) 207-5300 · Sudbury & Manitoulin, Ontario`
+(249) 507-0200 · Sudbury & Manitoulin, Ontario`
 
   return { html, text }
 }

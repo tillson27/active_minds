@@ -67,7 +67,7 @@ export default function Contact() {
       setSubmitted(true)
     } catch {
       setError(
-        'We had trouble sending your message. Please try again or reach us directly at (705) 207-5300.',
+        'We had trouble sending your message. Please try again or reach us directly at (249) 507-0200.',
       )
     } finally {
       setSending(false)
@@ -94,7 +94,7 @@ export default function Contact() {
                 <div className="contact-row-body">
                   <div className="key">Phone</div>
                   <div className="val">
-                    <a href="tel:+17052075300">(705) 207-5300</a>
+                    <a href="tel:+12495070200">(249) 507-0200</a>
                   </div>
                 </div>
               </div>
@@ -152,7 +152,7 @@ export default function Contact() {
                 <p>
                   Thank you for reaching out. One of our team will be in touch
                   within one business day. If your matter is urgent, please call
-                  us at <strong>(705) 207-5300</strong>.
+                  us at <strong>(249) 507-0200</strong>.
                 </p>
               </div>
             ) : (
