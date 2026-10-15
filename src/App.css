@@ -1378,9 +1378,51 @@
 
 .footer-links a:hover { color: var(--bone-50); }
 
+/* Grant acknowledgement: logos keep their original colours on a small light
+   panel so they stay legible against the dark sage footer. */
+.footer-supporters {
+  max-width: var(--container);
+  margin: 2.75rem auto 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem 1.25rem;
+  flex-wrap: wrap;
+}
+
+.footer-supporters-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: rgba(245, 241, 232, 0.45);
+}
+
+.footer-supporters-logos {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0.9rem;
+  background: var(--white);
+  border-radius: var(--radius-sm);
+}
+
+.footer-supporters-logos img {
+  display: block;
+  max-width: 100%;
+}
+
+.footer-supporter-now { height: 46px; }
+.footer-supporter-fednor { height: 26px; }
+
+.footer-supporters-divider {
+  align-self: stretch;
+  width: 1px;
+  background: var(--bone-200);
+}
+
 .footer-bottom {
   max-width: var(--container);
-  margin: 3.5rem auto 0;
+  margin: 2rem auto 0;
   padding-top: 1.5rem;
   border-top: 1px solid rgba(155, 184, 161, 0.12);
   display: flex;
@@ -1407,6 +1449,19 @@
     padding: 3rem 1.25rem 1.5rem;
   }
   .footer-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .footer-supporters {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 2.25rem;
+  }
+  .footer-supporters-logos {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+    max-width: 100%;
+  }
+  .footer-supporters-divider { display: none; }
+  .footer-supporter-fednor { height: auto; width: 280px; }
   .footer-bottom {
     flex-direction: column;
     gap: 0.4rem;

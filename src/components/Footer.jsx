@@ -1,4 +1,6 @@
 import Logo from './Logo'
+import nowLogo from '../assets/partners/now-logo.png'
+import fednorLogo from '../assets/partners/fednor-logo.png'
 
 export default function Footer() {
   const year = new Date().getFullYear()
@@ -58,6 +60,27 @@ export default function Footer() {
             <li>Sudbury &amp; Manitoulin, ON</li>
             <li>510 Perivale Rd E, Spring Bay</li>
           </ul>
+        </div>
+      </div>
+
+      <div className="footer-supporters">
+        <span className="footer-supporters-label">EMDR training supported by</span>
+        <div className="footer-supporters-logos">
+          <img
+            src={nowLogo}
+            alt="Northern Ontario Women / Femmes du Nord de l'Ontario"
+            className="footer-supporter-now"
+            loading="lazy"
+            decoding="async"
+          />
+          <span className="footer-supporters-divider" aria-hidden="true" />
+          <img
+            src={fednorLogo}
+            alt="Federal Economic Development Agency for Northern Ontario / Agence fédérale de développement économique pour le Nord de l'Ontario"
+            className="footer-supporter-fednor"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
       </div>
 
