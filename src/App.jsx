@@ -14,6 +14,7 @@ import Retreat from './components/Retreat'
 import GriefProgram from './components/GriefProgram'
 import Admin from './components/Admin'
 import EventsPopup from './components/EventsPopup'
+import Resources from './components/Resources'
 
 const stripBase = (pathname) => {
   const base = import.meta.env.BASE_URL.replace(/\/$/, '')
@@ -24,6 +25,7 @@ const stripBase = (pathname) => {
 const isRetreatPath = (pathname) => /^\/retreat\/?$/i.test(stripBase(pathname))
 const isGriefPath = (pathname) => /^\/grief-program\/?$/i.test(stripBase(pathname))
 const isAdminPath = (pathname) => /^\/admin\/?$/i.test(stripBase(pathname))
+const isResourcesPath = (pathname) => /^\/resources\/?$/i.test(stripBase(pathname))
 
 function App() {
   const [path, setPath] = useState(() =>
@@ -46,6 +48,10 @@ function App() {
 
   if (isAdminPath(path)) {
     return <Admin />
+  }
+
+  if (isResourcesPath(path)) {
+    return <><Navbar variant="resources" /><main id="main"><Resources /></main><Footer /></>
   }
 
   if (isRetreatPath(path)) {

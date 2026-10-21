@@ -98,6 +98,7 @@ In Route 53 (or your DNS host), create:
 - **Team bios** — `src/components/Team.jsx`
 - **Services & pricing** — `src/components/Services.jsx`
 - **Programs** — `src/components/Programs.jsx`
+- **Resources & self-care walkthrough** — `src/components/Resources.jsx`; prompts, email rendering, and validation live in `lambda/selfCarePlan.mjs`. The original fillable worksheet is `public/resources/my-self-care-plan.pdf`.
 - **About copy / pillars** — `src/components/About.jsx`
 - **Phone / address / inboxes** — `src/components/Contact.jsx`, `src/components/Footer.jsx`, and the Lambda stack params
 - **Admin submissions** — visit `/admin` after deploying infrastructure, Lambda code, and the site
@@ -109,6 +110,7 @@ For visual identity tweaks, all the design tokens live as CSS custom properties 
 - **No CDN-side compute.** Static delivery only. The contact form posts directly to the Lambda Function URL — keeps complexity (and bill) flat.
 - **Resend sends two emails** per submission: a richly formatted inquiry to the practice, and a warm auto-reply to the sender confirming receipt.
 - **DynamoDB stores submissions** after the practice email succeeds. Storage failures are logged as non-fatal so a temporary database issue does not block form submissions.
+- **Self-care plans** go only to the visitor's chosen email address with their consent, without copying the practice or saving answers to DynamoDB. Answers remain in tab memory until leaving the page; the review screen supports saving an HTML copy and printing to PDF. Run `npm test` for validation, rendering, and email handler checks.
 - **`/admin` is server-protected.** The frontend never contains the password; it exchanges the password for a short-lived signed token through Lambda.
 - **Honeypot + length validation** in the Lambda discourage automated spam.
 - **OAC, not OAI.** Bucket is fully private; CloudFront pulls via Origin Access Control with a sigv4 signature.

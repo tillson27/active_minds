@@ -15,7 +15,8 @@ const NAV_ITEMS = [
 export default function Navbar({ variant }) {
   const onRetreat = variant === 'retreat'
   const onGrief = variant === 'grief'
-  const onSubpage = onRetreat || onGrief
+  const onResources = variant === 'resources'
+  const onSubpage = onRetreat || onGrief || onResources
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -74,7 +75,10 @@ export default function Navbar({ variant }) {
             </li>
           ))}
           <li>
-            {onSubpage ? (
+            <a href={withBase('/resources')} aria-current={onResources ? 'page' : undefined} onClick={(event) => { close(); handleSpaClick('/resources')(event) }}>Resources</a>
+          </li>
+          <li>
+            {onRetreat || onGrief ? (
               <a
                 href="#register"
                 className="btn btn-primary nav-cta"

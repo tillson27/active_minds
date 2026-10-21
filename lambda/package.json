@@ -6,7 +6,7 @@
   "description": "Lambda handler for ACTive Minds Therapy forms, auto-replies, DynamoDB submissions, and admin access.",
   "main": "contact.mjs",
   "scripts": {
-    "bundle": "rm -f function.zip && zip -r function.zip contact.mjs emailTemplate.mjs package.json"
+    "bundle": "rm -f function.zip && zip -r function.zip contact.mjs emailTemplate.mjs selfCarePlan.mjs package.json"
   },
   "dependencies": {}
 }

@@ -13,6 +13,7 @@ import {
   timingSafeEqual,
 } from 'node:crypto'
 import { createRequire } from 'node:module'
+import { buildSelfCarePlan, validateSelfCarePlan } from './selfCarePlan.mjs'
 
 const require = createRequire(import.meta.url)
 
@@ -374,6 +375,27 @@ export const handler = async (event) => {
   // Honeypot — silently accept if filled, to discourage bots
   if (data?.website || data?.company) {
     return json(200, { ok: true })
+  }
+
+  if (data?.formType === 'self-care') {
+    const validationError = validateSelfCarePlan(data)
+    if (validationError) return json(400, { error: validationError })
+    const plan = buildSelfCarePlan(data)
+    try {
+      // Personal reflections are sent only to the visitor, without submission storage.
+      await sendEmail({
+        from: `ACTive Minds Therapy <${FROM_EMAIL}>`,
+        to: [data.email.trim()],
+        subject: 'Your self-care plan — ACTive Minds Therapy',
+        html: plan.html,
+        text: plan.text,
+      })
+      return json(200, { ok: true })
+    } catch {
+      // Provider errors can contain personal information; do not log their payloads.
+      console.error('Self-care plan email delivery failed')
+      return json(502, { error: 'Your plan could not be emailed. Please try again.' })
+    }
   }
 
   const formType = ['retreat', 'grief'].includes(data?.formType)

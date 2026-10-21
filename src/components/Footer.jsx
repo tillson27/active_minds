@@ -1,6 +1,7 @@
 import Logo from './Logo'
 import nowLogo from '../assets/partners/now-logo.png'
 import fednorLogo from '../assets/partners/fednor-logo.png'
+import { withBase, handleSpaClick } from '../lib/navigate'
 
 export default function Footer() {
   const year = new Date().getFullYear()
@@ -24,23 +25,24 @@ export default function Footer() {
         <div className="footer-col">
           <h5>Explore</h5>
           <ul className="footer-links">
-            <li><a href="#about">About</a></li>
-            <li><a href="#specializations">Approach</a></li>
-            <li><a href="#services">Services</a></li>
-            <li><a href="#team">Our Team</a></li>
-            <li><a href="#events">Events</a></li>
-            <li><a href="#contact">Contact</a></li>
+            <li><a href={`${withBase('/')}#about`}>About</a></li>
+            <li><a href={`${withBase('/')}#specializations`}>Approach</a></li>
+            <li><a href={`${withBase('/')}#services`}>Services</a></li>
+            <li><a href={`${withBase('/')}#team`}>Our Team</a></li>
+            <li><a href={`${withBase('/')}#events`}>Events</a></li>
+            <li><a href={`${withBase('/')}#contact`}>Contact</a></li>
+            <li><a href={withBase('/resources')} onClick={handleSpaClick('/resources')}>Resources</a></li>
           </ul>
         </div>
 
         <div className="footer-col">
           <h5>Services</h5>
           <ul className="footer-links">
-            <li><a href="#services">Individual Therapy</a></li>
-            <li><a href="#services">Couples &amp; Family</a></li>
-            <li><a href="#services">Clinical Supervision</a></li>
-            <li><a href="#services">Consulting</a></li>
-            <li><a href="#services">Training &amp; Workshops</a></li>
+            <li><a href={`${withBase('/')}#services`}>Individual Therapy</a></li>
+            <li><a href={`${withBase('/')}#services`}>Couples &amp; Family</a></li>
+            <li><a href={`${withBase('/')}#services`}>Clinical Supervision</a></li>
+            <li><a href={`${withBase('/')}#services`}>Consulting</a></li>
+            <li><a href={`${withBase('/')}#services`}>Training &amp; Workshops</a></li>
           </ul>
         </div>
 

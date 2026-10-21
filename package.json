@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
+    "test": "node --test lambda/*.test.mjs",
     "deploy:site": "bash scripts/deploy-site.sh",
     "deploy:lambda": "bash scripts/deploy-lambda.sh",
     "deploy:infra": "bash scripts/deploy-infra.sh"

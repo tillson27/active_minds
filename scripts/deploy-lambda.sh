@@ -16,7 +16,7 @@ echo "→ Bundling function.zip…"
 (
   cd "$LAMBDA_DIR"
   rm -f function.zip
-  zip -qr function.zip contact.mjs emailTemplate.mjs package.json
+  zip -qr function.zip contact.mjs emailTemplate.mjs selfCarePlan.mjs package.json
 )
 
 FN_NAME="$(
